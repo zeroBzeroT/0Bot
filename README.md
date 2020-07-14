@@ -1,6 +1,6 @@
 # 0Bot
 
-Mincraft bot based on mineflayer to promote 0b0t.org and add a discord bridge between the server 0Bot is on and the 0b0t discord. Also has basic command capabilities.
+Minecraft bot based on mineflayer to promote 0b0t.org and add a bridge between the server running 0Bot and the 0b0t discord. Also has basic command capabilities.
 
 ## Ingame Functions
 
