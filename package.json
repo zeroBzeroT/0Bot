@@ -1,0 +1,24 @@
+{
+  "name": "0Bot",
+  "version": "0.0.0",
+  "description": "0Bot",
+  "author": {
+    "name": ""
+  },
+  "dependencies": {
+    "discord.js": "^12.2.0",
+    "mineflayer": "^2.23.0",
+    "minestat": "^1.0.0"
+  },
+  "scripts": {
+    "debug": "node --nolazy 0Bot.js"
+  },
+  "type": "node",
+  "request": "launch",
+  "cwd": "${workspaceFolder}/0Bot.js",
+  "runtimeExecutable": "npm",
+  "runtimeArgs": [
+    "run-script",
+    "debug"
+  ]
+}
