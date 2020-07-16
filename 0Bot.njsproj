@@ -16,11 +16,17 @@
     <SaveNodeJsSettingsInProjectFile>True</SaveNodeJsSettingsInProjectFile>
     <NodeExePath>C:\Program Files\nodejs\node.exe</NodeExePath>
     <JavaScriptTestFramework>Tape</JavaScriptTestFramework>
+    <NodeExeArguments>--unhandled-rejections=strict</NodeExeArguments>
+    <ScriptArguments>0b0t.org</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
+    <Content Include=".env">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="package.json" />
+    <Content Include="promotion.txt" />
     <Content Include="README.md" />
     <Content Include="0Bot.js" />
   </ItemGroup>

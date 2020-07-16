@@ -12,7 +12,16 @@ Minecraft bot based on mineflayer to promote 0b0t.org and add a bridge between t
 
 - mineflayer
 - discord.js
+- dotenv
 
 ## Usage
 
-npm run forever start 0Bot.js [server] [username] [password] [discordtoken]
+Needs **Node.js 12+** to run.
+
+Create a file called **.env** in the project root folder with the following content:
+
+	minecraftUsername=un
+	minecraftPassword=pw
+	discordToken=dt
+
+npm run forever start 0Bot.js [server]
