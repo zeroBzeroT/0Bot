@@ -36,7 +36,7 @@ var moving = 0;
 var movingDir = 0;
 
 var tps = "";
-topic = server + " | Connecting... | Last Update: " + utcDateTime() + " UTC";
+var topic = server + " | Connecting... | Last Update: " + utcDateTime() + " UTC";
 
 var pi = 3.14159;
 
