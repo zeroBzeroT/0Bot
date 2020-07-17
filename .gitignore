@@ -1,3 +1,6 @@
+# Bot session
+session.json
+
 # Logs
 logs
 *.log
