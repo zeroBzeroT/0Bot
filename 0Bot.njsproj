@@ -25,6 +25,9 @@
     <Content Include=".env">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="channels.json">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="package.json" />
     <Content Include="promotion.txt" />
     <Content Include="README.md" />
