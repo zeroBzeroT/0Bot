@@ -22,19 +22,19 @@ Needs **Node.js 12+** to run.
 
 Create the following files in your project root folder:
 
-###env
+### env
 
 	minecraftUsername=un
 	minecraftPassword=pw
 	discordToken=dt
 
-###channels.json
+### channels.json
 
 	{
 	  "0b0t.org": "687391771218411609",
 	}
 
-###whitelist.json
+### whitelist.json
 
 	[
 	  "0bop",
