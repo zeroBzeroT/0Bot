@@ -1,11 +1,11 @@
 //process.argv[2] = "0b0t.org"
 
-if (process.argv.length != 3) {
+if (process.argv.length !== 3) {
     console.log('Usage : node <scriptname>.js <host>')
     process.exit(1)
 }
 
-var server = process.argv[2];
+const server = process.argv[2];
 
 const fs = require('fs');
 const mineflayer = require('mineflayer');
@@ -13,44 +13,47 @@ const Discord = require('discord.js');
 const dotenv = require('dotenv');
 dotenv.config();
 
-var discordLink = "https://discord.gg/WmXCfTA";
-var changeTopicToStats = true;
+const discordLink = "https://discord.gg/WmXCfTA";
+const changeTopicToStats = true;
 
-var doAdvertising = false;
-var promoted = "0b0t.org"
+const doAdvertising = false;
+const promoted = "0b0t.org";
 
 // TODO MESSAGE QUEUE
 //var messageQueue = [];
 //var maxMessageQueueLength = 5;
 
-var intervalDiscordTopic = 30 * 2; // seconds
-var intervalMove = 10 * 2; // seconds
-var intervalBroadcast = 60 * 2; // seconds
-var waitOnCrash = 120 * 5; // seconds
+const intervalDiscordTopic = 30 * 2; // seconds
+const intervalMove = 10 * 2; // seconds
+const intervalBroadcast = 60 * 2; // seconds
+const waitOnCrash = 120 * 5; // seconds
 
-var lastTimeMoved = -1; // ts
-var lastTimeBroadcast = -1; // ts
-var maxrandom = 5; // 0-5 seconds added to movement interval (randomly)
+let lastTimeMoved = -1; // ts
+let lastTimeBroadcast = -1; // ts
+const maxrandom = 5; // 0-5 seconds added to movement interval (randomly)
 
-var moving = 0;
-var movingDir = 0;
+let moving = 0;
+let movingDir = 0;
 
-var tps = "";
-var topic = server + " | Connecting... | Last Update: " + utcDateTime() + " UTC";
+let tps = "";
+let topic = server + " | Connecting... | Last Update: " + utcDateTime() + " UTC";
 
-var pi = 3.14159;
+const pi = 3.14159;
 
-var whiteList = [
+const whiteList = [
     "1_p",
     "x0z0",
     "0bop"
 ];
 
-var channels = require('./channels.json') //JSON.parse(fs.readFileSync('channels.json').toString());
-var broadcasts = fs.readFileSync('promotion.txt').toString().split("\n");
+const channels = require('./channels.json'); //JSON.parse(fs.readFileSync('channels.json').toString());
+const broadcasts = fs.readFileSync('promotion.txt').toString().split("\n");
 
 let session
-try { session = JSON.parse(fs.readFileSync('session.json', 'utf8')) } catch (err) { }
+try {
+    session = JSON.parse(fs.readFileSync('session.json', 'utf8'))
+} catch (err) {
+}
 
 const minecraftLoginData = {
     host: server,
@@ -65,56 +68,54 @@ const minecraftLoginData = {
 // DISCORD BOT
 const discordBot = new Discord.Client();
 
-var minecraftConnected = false;
-var discordConnected = false;
+let minecraftConnected = false;
+let discordConnected = false;
 
 // DISCORD BOT
 discordBot.on('ready', () => {
+
     console.log("Logged in as Discord Bot " + discordBot.user.tag + ".");
     discordConnected = true;
 
-    if (discordBot.user !== undefined && discordBot.user != null) {
-        discordBot.user.setActivity('0b0t.org', {
-            type: 'PLAYING'
-        });
-    }
+    discordBot.user.setActivity('0b0t.org', {
+        type: 'PLAYING'
+    }).then(() => console.log('Changed presence'));
 
-    var channel = getDiscordChannel(server);
+    const channel = getDiscordChannel(server);
 
     if (channel != null) {
         channel.send(":white_check_mark: **Bridge for server '" + server + "' has started**");
     }
+
 });
 
+
+// MINECRAFT BOT
+let minecraftBot;
 // CHAT DISCORD -> GAME
 discordBot.on('message', msg => {
-    if (discordConnected && msg.author.id != discordBot.user.id) {
-        if (msg.channel.id == channels[server]) {
-            if (msg.content.startsWith("!")) {
-                var channel = getDiscordChannel(server);
 
-                if (msg.content.toLowerCase() == "!help") {
+    if (discordConnected && msg.author.id !== discordBot.user.id) {
+        if (msg.channel.id === channels[server]) {
+            if (msg.content.startsWith("!")) {
+                const channel = getDiscordChannel(server);
+
+                if (msg.content.toLowerCase() === "!help") {
                     channel.send(":arrow_forward: Commands are: !help.");
-                }
-                else {
+                } else {
                     channel.send(":warning: Unknown Command!");
                 }
-            }
-            else {
-                var message = "[" + msg.author.username + "]" + ": " + msg.content;
+            } else {
+                const message = "[" + msg.author.username + "]" + ": " + msg.content;
 
                 minecraftBot.chat(message.substr(0, 240));
             }
-        } else if (msg.channel.name == "announcements") {
-            minecraftBot.chat("> ANNOUNCEMENT: " + msg.content);
         }
     }
+
 });
 
-discordBot.login(process.env.discordToken);
-
-// MINECRAFT BOT
-var minecraftBot;
+discordBot.login(process.env.discordToken); // TODO: do not ignore returned promise then()
 relog();
 
 // TODO NAVIGATION
@@ -131,23 +132,41 @@ function relog() {
 function autoEquipEatTotem() {
     if (!minecraftConnected) return;
 
-    var handItem = minecraftBot.inventory.findInventoryItem(261); // Bow
-    if (handItem) { minecraftBot.equip(handItem, 'hand'); return; }
+    const handItem = minecraftBot.inventory.findInventoryItem(261); // Bow
+    if (handItem) {
+        minecraftBot.equip(handItem, 'hand');
+        return;
+    }
 
-    var headItem = minecraftBot.inventory.findInventoryItem(310, null); // Diamond Helmet
-    if (headItem) { minecraftBot.equip(headItem, 'head'); return; }
+    const headItem = minecraftBot.inventory.findInventoryItem(310, null); // Diamond Helmet
+    if (headItem) {
+        minecraftBot.equip(headItem, 'head');
+        return;
+    }
 
-    var chestItem = minecraftBot.inventory.findInventoryItem(311, null); // Diamond Chestplate
-    if (chestItem) { minecraftBot.equip(chestItem, 'torso'); return; }
+    const chestItem = minecraftBot.inventory.findInventoryItem(311, null); // Diamond Chestplate
+    if (chestItem) {
+        minecraftBot.equip(chestItem, 'torso');
+        return;
+    }
 
-    var legsItem = minecraftBot.inventory.findInventoryItem(312, null); // Diamond Leggings
-    if (legsItem) { minecraftBot.equip(legsItem, 'legs'); return; }
+    const legsItem = minecraftBot.inventory.findInventoryItem(312, null); // Diamond Leggings
+    if (legsItem) {
+        minecraftBot.equip(legsItem, 'legs');
+        return;
+    }
 
-    var feetItem = minecraftBot.inventory.findInventoryItem(313, null); // Diamond Boots
-    if (feetItem) { minecraftBot.equip(feetItem, 'feet'); return; }
+    const feetItem = minecraftBot.inventory.findInventoryItem(313, null); // Diamond Boots
+    if (feetItem) {
+        minecraftBot.equip(feetItem, 'feet');
+        return;
+    }
 
-    var offhandItem = minecraftBot.inventory.findInventoryItem(449); // Totem of Undying
-    if (offhandItem) { minecraftBot.equip(offhandItem, 'off-hand'); return; }
+    const offhandItem = minecraftBot.inventory.findInventoryItem(449); // Totem of Undying
+    if (offhandItem) {
+        minecraftBot.equip(offhandItem, 'off-hand');
+
+    }
 }
 
 function updateDiscordTopic() {
@@ -156,8 +175,8 @@ function updateDiscordTopic() {
             topic = server + " | " + sizeOf(minecraftBot.players) + "/" + minecraftBot.game.maxPlayers + " Players online | " + tps + "Last Update: " + utcDateTime() + " UTC | Type in the channel to communicate with the server";
         }
 
-        if (getDiscordChannel(server).topic != topic && topic != null)
-            getDiscordChannel(server).setTopic(topic);
+        if (getDiscordChannel(server).topic !== topic && topic != null)
+            getDiscordChannel(server).setTopic(topic); // TODO: do not ignore returned promise then()
 
         minecraftBot.chat("/tps");
     }
@@ -181,11 +200,10 @@ function bindEvents(minecraftBot) {
         // Anti Afk
         // TODO Move/Navigation
         setInterval(function () {
-            if (movingDir == 1) {
+            if (movingDir === 1) {
                 //minecraftBot.navigate.to(minecraftBot.entity.position.offset(-2, 0, 2));
                 movingDir = 0;
-            }
-            else {
+            } else {
                 //minecraftBot.navigate.to(minecraftBot.entity.position.offset(2, 0, -2));
                 movingDir = 1;
             }
@@ -198,19 +216,19 @@ function bindEvents(minecraftBot) {
     minecraftBot.on('chat', function (username, message) {
         if (username === minecraftBot.username) return;
 
-        if (username == "queue") {
+        if (username === "queue") {
             topic = server + " | Queue: " + message + " | Last Update: " + utcDateTime() + " UTC";
-        } else if (username == "15m") {
+        } else if (username === "15m") {
             tps = "TPS: " + message + " | ";
-        } else if (message.toLowerCase() == "~discord" || message.toLowerCase() == "!discord" || message.toLowerCase() == "?discord") {
+        } else if (message.toLowerCase() === "~discord" || message.toLowerCase() === "!discord" || message.toLowerCase() === "?discord") {
             minecraftBot.chat("> Join " + discordLink + " for the " + server + " discord chat bridge.");
-        } else if (message.toLowerCase() == "~leave" && whiteList.includes(username.toLowerCase())) {
+        } else if (message.toLowerCase() === "~leave" && whiteList.includes(username.toLowerCase())) {
             minecraftBot.quit();
         } else if (discordConnected) {
-            var channel = getDiscordChannel(server);
+            const channel = getDiscordChannel(server);
 
             if (channel != null) {
-                var color = mod(hashCode(username), 16777215);
+                const color = mod(hashCode(username), 16777215);
 
                 const embed = new Discord.MessageEmbed()
                     .setAuthor(username, "https://minotar.net/avatar/" + username)
@@ -225,15 +243,14 @@ function bindEvents(minecraftBot) {
 
     // TPA REQUEST
     minecraftBot.on('message', msg => {
-        var regex = "^([a-zA-Z0-9_]{3,16}) wants to teleport to you\.$"
-        var found = msg.toString().match(regex);
+        const regex = "^([a-zA-Z0-9_]{3,16}) wants to teleport to you\.$";
+        const found = msg.toString().match(regex);
 
         if (found != null) {
             if (whiteList.includes(found[1].toLowerCase())) {
                 minecraftBot.chat("/tpy " + found[1]);
                 console.log(found[1] + " teleported.");
-            }
-            else {
+            } else {
                 console.log(found[1] + " is not allowed to teleport.");
             }
         }
@@ -244,13 +261,12 @@ function bindEvents(minecraftBot) {
         let food = minecraftBot.food
         let health = minecraftBot.health
 
-        minecraftBot.it
+        // minecraftBot.it // wtf is this?
 
         if (health < 20) {
             minecraftBot.activateItem();
             console.log('eat something because low health')
-        }
-        else if (food < 17) {
+        } else if (food < 17) {
             minecraftBot.activateItem();
             console.log('eat something because hunger')
         }
@@ -259,22 +275,22 @@ function bindEvents(minecraftBot) {
     // BOT CRONJOBS
     minecraftBot.on('time', function () {
         if (!minecraftConnected) return;
-
+        let randomadd;
         // Look Around
         if (lastTimeMoved < 0) {
             lastTimeMoved = minecraftBot.time.age;
         } else {
-            var randomadd = Math.random() * 20 + maxrandom;
-            var interval = intervalMove * 20 + randomadd;
+            randomadd = Math.random() * 20 + maxrandom;
+            const interval = intervalMove * 20 + randomadd;
 
             if (minecraftBot.time.age - lastTimeMoved > interval) {
-                if (moving == 1) {
+                if (moving === 1) {
                     minecraftBot.setControlState('sneak', true);
-                    minecraftBot._client.write('arm_animation', { hand: 0 });
+                    minecraftBot._client.write('arm_animation', {hand: 0});
                     moving = 0;
                 } else {
-                    var yaw = Math.random() * pi - (0.5 * pi);
-                    var pitch = Math.random() * pi - (0.5 * pi);
+                    const yaw = Math.random() * pi - (0.5 * pi);
+                    const pitch = Math.random() * pi - (0.5 * pi);
                     minecraftBot.setControlState('sneak', false);
                     minecraftBot.look(yaw, pitch, false);
                     moving = 1;
@@ -289,12 +305,12 @@ function bindEvents(minecraftBot) {
             if (lastTimeBroadcast < 0) {
                 lastTimeBroadcast = minecraftBot.time.age;
             } else {
-                var randomadd = Math.random() * 20 + maxrandom;
+                randomadd = Math.random() * 20 + maxrandom;
 
-                var intervalbc = intervalBroadcast * 20 + randomadd;
+                const intervalbc = intervalBroadcast * 20 + randomadd;
 
                 if (minecraftBot.time.age - lastTimeBroadcast > intervalbc) {
-                    var message = broadcasts[Math.floor(Math.random() * broadcasts.length)];
+                    let message = broadcasts[Math.floor(Math.random() * broadcasts.length)];
 
                     message = message.replace("%server%", server);
                     message = message.replace("%promoted%", promoted);
@@ -314,11 +330,11 @@ function bindEvents(minecraftBot) {
 
     // BOT KICK
     minecraftBot.on('kicked', function (reason) {
-        var jsonReason = JSON.parse(reason);
+        const jsonReason = JSON.parse(reason);
 
         console.log("Minecraft bot was kicked for " + jsonReason.text);
 
-        var channel = getDiscordChannel(server);
+        const channel = getDiscordChannel(server);
 
         if (channel != null) {
             channel.send(":angry: **Bridge for server '" + server + "' was kicked with the reason: " + jsonReason.text + "**");
@@ -330,7 +346,7 @@ function bindEvents(minecraftBot) {
         minecraftConnected = false;
         console.log("Minecraft bot has ended! Attempting to reconnect in 30 s...");
 
-        var channel = getDiscordChannel(server);
+        const channel = getDiscordChannel(server);
 
         if (channel != null) {
             topic = server + " | Disconnected | Last Update: " + utcDateTime() + " UTC";
@@ -345,7 +361,7 @@ function bindEvents(minecraftBot) {
         minecraftConnected = false;
         console.log("Minecraft bot error '" + err.errno + "'.");
 
-        var channel = getDiscordChannel(server);
+        const channel = getDiscordChannel(server);
 
         if (channel != null) {
             topic = server + " | Error | Last Update: " + utcDateTime() + " UTC";
@@ -365,10 +381,10 @@ process.on('uncaughtException', function (err) {
 
 // DISCORD CHANNEL
 function getDiscordChannel(channel) {
-    var ret = null;
-    var first = true;
+    let ret = null;
+    let first = true;
 
-    var channelId = channels[channel];
+    const channelId = channels[channel];
 
     do {
         if (first) {
@@ -385,18 +401,18 @@ function getDiscordChannel(channel) {
 
 // EXCEPTION
 // so the program will not close instantly
-process.stdin.resume(); 
+process.stdin.resume();
 
 function exitHandler(options, exitCode) {
     discordConnected = false;
     minecraftConnected = false;
 
-    var channel = getDiscordChannel(server);
+    const channel = getDiscordChannel(server);
 
     if (channel != null) {
         topic = server + " | Offline | Last Update: " + utcDateTime() + " UTC";
         channel.send(":octagonal_sign: **Bridge for server '" + server + "' has stopped**");
-        channel.setTopic(topic);
+        channel.setTopic(topic); // TODO: do not ignore returned promise then()
     }
 }
 
@@ -419,9 +435,9 @@ process.on('SIGUSR2', exitHandler.bind(null, {}));
  * @param milliseconds
  */
 function sleep(milliseconds) {
-    var start = new Date().getTime();
+    const start = new Date().getTime();
 
-    for (var i = 0; i < 1e14; i++) {
+    for (let i = 0; i < 1e14; i++) {
         if ((new Date().getTime() - start) > milliseconds) {
             break;
         }
@@ -433,34 +449,32 @@ function sleep(milliseconds) {
  * @param data array
  */
 function sizeOf(data) {
-    var size = 0;
+    let size = 0;
 
-    for (i in data) {
+    for (let i in data) {
         size++;
     }
 
     return size;
-};
+}
 
 /**
  * formatted utc time
  */
 function utcDateTime() {
-    var m = new Date();
-    var dateString =
-        m.getUTCFullYear() + "/" +
+    const m = new Date();
+    return m.getUTCFullYear() + "/" +
         ("0" + (m.getUTCMonth() + 1)).slice(-2) + "/" +
         ("0" + m.getUTCDate()).slice(-2) + " " +
         ("0" + m.getUTCHours()).slice(-2) + ":" +
         ("0" + m.getUTCMinutes()).slice(-2) + ":" +
         ("0" + m.getUTCSeconds()).slice(-2);
-    return dateString;
 }
 
 // java String#hashCode
-function hashCode(str) { 
-    var hash = 0;
-    for (var i = 0; i < str.length; i++) {
+function hashCode(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
         hash = str.charCodeAt(i) + ((hash << 5) - hash);
     }
     return hash;

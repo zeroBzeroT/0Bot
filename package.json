@@ -8,8 +8,7 @@
   "dependencies": {
     "discord.js": "^12.2.0",
     "dotenv": "^8.2.0",
-    "mineflayer": "^2.23.0",
-    "minestat": "^1.0.0"
+    "mineflayer": "^2.24.0"
   },
   "scripts": {
     "debug": "node --nolazy 0Bot.js 0b0t.org"
