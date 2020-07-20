@@ -17,7 +17,7 @@
     <NodeExePath>C:\Program Files\nodejs\node.exe</NodeExePath>
     <JavaScriptTestFramework>Tape</JavaScriptTestFramework>
     <NodeExeArguments>--unhandled-rejections=strict</NodeExeArguments>
-    <ScriptArguments>0b0t.org</ScriptArguments>
+    <ScriptArguments>9b9t.com</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
@@ -32,6 +32,9 @@
     <Content Include="promotion.txt" />
     <Content Include="README.md" />
     <Content Include="0Bot.js" />
+    <Content Include="whitelist.json">
+      <SubType>Code</SubType>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsToolsV2.targets" />
