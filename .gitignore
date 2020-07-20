@@ -1,6 +1,9 @@
 # Bot session
 session.json
 
+# Discord channels
+channels.json
+
 # Logs
 logs
 *.log
