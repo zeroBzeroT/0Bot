@@ -22,7 +22,7 @@ Needs **Node.js 12+** to run.
 
 Create the following files in your project root folder:
 
-### env
+### .env
 
 	minecraftUsername=un
 	minecraftPassword=pw
