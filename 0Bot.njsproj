@@ -32,6 +32,9 @@
     <Content Include="promotion.txt" />
     <Content Include="README.md" />
     <Content Include="0Bot.js" />
+    <Content Include="tps.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="whitelist.json">
       <SubType>Code</SubType>
     </Content>

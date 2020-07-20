@@ -45,3 +45,7 @@ Create the following files in your project root folder:
 	]
 
 npm run forever start 0Bot.js [server]
+
+## Sources
+
+- adapted tps code from https://github.com/SiebeDW/mineflayer-tps/

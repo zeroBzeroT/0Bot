@@ -12,6 +12,7 @@ const server = process.argv[2];
 const fs = require('fs');
 const mineflayer = require('mineflayer');
 const navigatePlugin = require('mineflayer-navigate')(mineflayer);
+const tpsPlugin = require('./tps.js')(mineflayer)
 const Discord = require('discord.js');
 const dotenv = require('dotenv');
 
@@ -119,6 +120,7 @@ discordBot.login(process.env.discordToken); // TODO: do not ignore returned prom
 relog();
 
 function relog() {
+    try { minecraftBot.quit(); } catch { }
     console.log("Attempting to (re)connect to " + server + "...");
     minecraftBot = mineflayer.createBot(minecraftLoginData);
     bindEvents(minecraftBot);
@@ -167,19 +169,23 @@ function autoEquipEatTotem() {
 function updateDiscordTopic() {
     if (discordConnected && changeTopicToStats) {
         if (minecraftConnected && minecraftBot.players !== undefined && minecraftBot.players != null) {
+            tps = "TPS: " + minecraftBot.getTps() + " | ";
             topic = server + " | " + sizeOf(minecraftBot.players) + "/" + minecraftBot.game.maxPlayers + " Players online | " + tps + "Last Update: " + utcDateTime() + " UTC | Type in the channel to communicate with the server";
         }
 
         if (getDiscordChannel(server).topic !== topic && topic != null)
             getDiscordChannel(server).setTopic(topic); // TODO: do not ignore returned promise then()
 
-        minecraftBot.chat("/tps");
+        //minecraftBot.chat("/tps");
     }
 }
 
 function bindEvents(minecraftBot) {
     // NAVIGATION
     navigatePlugin(minecraftBot);
+
+    // TPS
+    minecraftBot.loadPlugin(tpsPlugin);
 
     // SAVED SESSION
     minecraftBot._client.on('session', () => {
@@ -315,6 +321,8 @@ function bindEvents(minecraftBot) {
 
     // BOT KICK
     minecraftBot.on('kicked', function (reason) {
+        minecraftConnected = false;
+
         const jsonReason = JSON.parse(reason);
 
         console.log("Minecraft bot was kicked for " + jsonReason.text);
@@ -338,6 +346,7 @@ function bindEvents(minecraftBot) {
     // BOT DISCO
     minecraftBot.on('end', function () {
         minecraftConnected = false;
+
         console.log("Minecraft bot has ended! Attempting to reconnect in 30 s...");
 
         topic = server + " | Disconnected | Last Update: " + utcDateTime() + " UTC";
@@ -511,7 +520,7 @@ function setTerminalTitle(title) {
 
 function hideEmail(email) {
     return email.replace(/(.{2})(.*)(?=@)/,
-        function (gp1, gp2, gp3) {
+        function (_gp1, gp2, gp3) {
             for (let i = 0; i < gp3.length; i++) {
                 gp2 += "*";
             } return gp2;
