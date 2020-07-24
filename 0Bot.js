@@ -22,13 +22,10 @@ try { setTerminalTitle(hideEmail(process.env.minecraftUsername) + " | " + server
 
 const discordLink = "https://discord.gg/WmXCfTA";
 const changeTopicToStats = true;
+const logStatusToChat = false;
 
 const doAdvertising = false;
 const promoted = "0b0t.org";
-
-// TODO MESSAGE QUEUE
-//var messageQueue = [];
-//var maxMessageQueueLength = 5;
 
 const intervalDiscordTopic = 30 * 2; // seconds
 const intervalMove = 5; // seconds
@@ -40,9 +37,6 @@ let lastTimeBroadcast = -1; // ts
 const maxrandom = 5; // 0-5 seconds added to movement interval (randomly)
 
 let moving = 0;
-
-let tps = "";
-let topic = server + " | Connecting... | Last Update: " + utcDateTime() + " UTC";
 
 const channels = require('./channels.json');
 const broadcasts = fs.readFileSync('promotion.txt').toString().split("\n");
@@ -78,13 +72,9 @@ discordBot.on('ready', () => {
         type: 'PLAYING'
     }).then(() => console.log('Changed presence'));
 
-    try {
-        const channel = getDiscordChannel(server);
-
-        if (channel != null) {
-            channel.send(":white_check_mark: **Bridge for server '" + server + "' has started**");
-        }
-    } catch { }
+    if (logStatusToChat) sendToDiscordChat(":white_check_mark: **Bridge for server '" + server + "' has started**", true)
+    
+    if (!minecraftConnected) setDiscordChannelTopic(":hourglass:  " + server + " | Connecting...");
 });
 
 // MINECRAFT BOT
@@ -92,23 +82,16 @@ let minecraftBot;
 
 // CHAT DISCORD -> GAME
 discordBot.on('message', msg => {
-
     if (discordConnected && msg.author.id !== discordBot.user.id) {
         if (msg.channel.id === channels[server]) {
             if (msg.content.startsWith("!")) {
-
-                try {
-                    const channel = getDiscordChannel(server);
-
-                    if (msg.content.toLowerCase() === "!help") {
-                        channel.send(":arrow_forward: Commands are: !help.");
-                    } else {
-                        channel.send(":warning: Unknown Command!");
-                    }
-                } catch { }
-
+                if (msg.content.toLowerCase() === "!help") {
+                    sendToDiscordChat(":arrow_forward: Commands are: !help")
+                } else {
+                    sendToDiscordChat(":warning: Unknown Command!")
+                }
             } else {
-                const message = "[" + msg.author.username + "]" + ": " + msg.content;
+                const message = "[" + msg.author.username + "]" + ": `" + msg.content;
 
                 minecraftBot.chat(message.substr(0, 240));
             }
@@ -167,16 +150,8 @@ function autoEquipEatTotem() {
 }
 
 function updateDiscordTopic() {
-    if (discordConnected && changeTopicToStats) {
-        if (minecraftConnected && minecraftBot.players !== undefined && minecraftBot.players != null) {
-            tps = "TPS: " + minecraftBot.getTps() + " | ";
-            topic = server + " | " + sizeOf(minecraftBot.players) + "/" + minecraftBot.game.maxPlayers + " Players online | " + tps + "Last Update: " + utcDateTime() + " UTC | Type in the channel to communicate with the server";
-        }
-
-        if (getDiscordChannel(server).topic !== topic && topic != null)
-            getDiscordChannel(server).setTopic(topic); // TODO: do not ignore returned promise then()
-
-        //minecraftBot.chat("/tps");
+    if (changeTopicToStats && minecraftConnected && minecraftBot.players !== undefined && minecraftBot.players != null) {
+        setDiscordChannelTopic(":white_check_mark:  " + server + " | " + sizeOf(minecraftBot.players) + "/" + minecraftBot.game.maxPlayers + " Players online | TPS: " + minecraftBot.getTps());
     }
 }
 
@@ -208,8 +183,12 @@ function bindEvents(minecraftBot) {
     // MINECRAFT BOT LOGIN
     minecraftBot.on('login', function () {
         console.log("Logged in as Minecraft bot " + hideEmail(process.env.minecraftUsername) + "!");
+    });
 
-        //setInterval(autoEquipEatTotem, 50) TODO
+    // BOT SPAWN
+    minecraftBot.on('spawn', function () {
+        minecraftConnected = true;
+        updateDiscordTopic();
     });
 
     // CHAT GAME -> DISCORD
@@ -217,29 +196,23 @@ function bindEvents(minecraftBot) {
         if (username === minecraftBot.username) return;
 
         if (username === "queue") {
-            topic = server + " | Queue: " + message + " | Last Update: " + utcDateTime() + " UTC";
+            setDiscordChannelTopic(":hourglass:  " + server + " | Queue: " + message + "");
         } else if (username === "15m") {
-            tps = "TPS: " + message + " | ";
+            //tps = "TPS: " + message + " | ";
         } else if (message.toLowerCase() === "~discord" || message.toLowerCase() === "!discord" || message.toLowerCase() === "?discord") {
             minecraftBot.chat("> Join " + discordLink + " for the " + server + " discord chat bridge.");
         } else if (message.toLowerCase() === "~leave" && whiteList.includes(username.toLowerCase())) {
             minecraftBot.quit();
         } else if (discordConnected) {
-            try {
-                const channel = getDiscordChannel(server);
+            const color = posMod(hashCode(username), 16777215);
 
-                if (channel != null) {
-                    const color = posMod(hashCode(username), 16777215);
+            const embed = new Discord.MessageEmbed()
+                .setAuthor(username, "https://minotar.net/avatar/" + username)
+                .setDescription(message)
+                .setColor(color)
+                .setFooter(utcDateTime());
 
-                    const embed = new Discord.MessageEmbed()
-                        .setAuthor(username, "https://minotar.net/avatar/" + username)
-                        .setDescription(message)
-                        .setColor(color)
-                        .setFooter(utcDateTime());
-
-                    channel.send(embed);
-                }
-            } catch { }
+            sendToDiscordChat(embed)
         }
     });
 
@@ -261,6 +234,11 @@ function bindEvents(minecraftBot) {
     minecraftBot.on('time', function () {
         if (!minecraftConnected) return;
         let randomadd;
+
+        // TPS
+        // minecraftBot.chat("/tps"); // TODO: needs to be timed somehow
+
+        // ~~~setInterval(autoEquipEatTotem, 50) TODO
 
         // Look Around
         if (lastTimeMoved < 0) {
@@ -313,12 +291,6 @@ function bindEvents(minecraftBot) {
         }
     });
 
-    // BOT SPAWN
-    minecraftBot.on('spawn', function () {
-        minecraftConnected = true;
-        updateDiscordTopic();
-    });
-
     // BOT KICK
     minecraftBot.on('kicked', function (reason) {
         minecraftConnected = false;
@@ -327,20 +299,14 @@ function bindEvents(minecraftBot) {
 
         console.log("Minecraft bot was kicked for " + jsonReason.text);
 
-        topic = server + " | Kicked | Last Update: " + utcDateTime() + " UTC";
+        setDiscordChannelTopic(":cold_face:  " + server + " | Kicked");
 
-        try {
-            const channel = getDiscordChannel(server);
-
-            if (channel != null) {
-                if (jsonReason.text.toLowerCase() === "timed out") {
-                    channel.send(":cold_face: **Bridge for server '" + server + "' timed out.**");
-                }
-                else {
-                    channel.send(":angry: **Bridge for server '" + server + "' was kicked with the reason: " + jsonReason.text + "**");
-                }
-            }
-        } catch { }
+        if (jsonReason.text.toLowerCase() === "timed out") {
+            sendToDiscordChat(":cold_face: **Bridge for server '" + server + "' timed out.**", true);
+        }
+        else {
+            sendToDiscordChat(":angry: **Bridge for server '" + server + "' was kicked with the reason: " + jsonReason.text + "**", true);
+        }
     });
 
     // BOT DISCO
@@ -349,15 +315,9 @@ function bindEvents(minecraftBot) {
 
         console.log("Minecraft bot has ended! Attempting to reconnect in 30 s...");
 
-        topic = server + " | Disconnected | Last Update: " + utcDateTime() + " UTC";
+        setDiscordChannelTopic(":warning:  " + server + " | Disconnected");
 
-        try {
-            const channel = getDiscordChannel(server);
-
-            if (channel != null) {
-                channel.send(":warning: **Bridge for server '" + server + "' disconnected! Attempting to reconnect in 30 s...**");
-            }
-        } catch { }
+        sendToDiscordChat(":warning: **Bridge for server '" + server + "' disconnected! Attempting to reconnect in 30 s...**", true);
 
         setTimeout(relog, 30000);
     });
@@ -368,22 +328,42 @@ function bindEvents(minecraftBot) {
 
         console.log("Minecraft bot error '" + err.errno + "'.");
 
-        topic = server + " | Error | Last Update: " + utcDateTime() + " UTC";
+        setDiscordChannelTopic(":sos:  " + server + " | Error");
 
-        if (err.code === undefined) {
-            //if (channel != null) { channel.send(":sos: **Bridge for server '" + server + "' had an error. Attempting to reconnect in 30 s...**"); }
-            setTimeout(relog, 30000);
+        if (err.code === undefined && logStatusToChat) {
+            //sendToChat(":sos: **Bridge for server '" + server + "' had an error. Attempting to reconnect in 30 s...**", true);
+
+            setTimeout(relog, 5 * 60 * 1000);
             console.log('Undefined error: Maybe invalid credentials OR bot needs to wait because it relogged too quickly.');
         }
         else {
-            try {
-                const channel = getDiscordChannel(server);
-                if (channel != null) {
-                    channel.send(":sos: **Bridge for server '" + server + "' had the error: " + err.errno + "**");
-                }
-            } catch { }
+            sendToDiscordChat(":sos: **Bridge for server '" + server + "' had the error: " + err.errno + "**", true);
         }
     });
+}
+
+function setDiscordChannelTopic(topic) {
+    if (!discordConnected) return;
+
+    var channel = getDiscordChannel(server);
+
+    if (channel != null && channel.topic !== topic && topic != null) {
+        topic = topic + " | Last Update: " + utcDateTime() + " UTC";
+
+        getDiscordChannel(server).setTopic(topic); // TODO: do not ignore returned promise then()
+    }
+}
+
+function sendToDiscordChat(message, isStatus = false) {
+    try {
+        const channel = getDiscordChannel(server);
+
+        if (channel != null && (!isStatus || logStatusToChat)) {
+            channel.send(message);
+        }
+    } catch (err) {
+        console.log(err.message);
+    }
 }
 
 // NODE EXCEPTION
@@ -423,16 +403,17 @@ function exitHandler() {
     discordConnected = false;
     minecraftConnected = false;
 
-    topic = server + " | Offline | Last Update: " + utcDateTime() + " UTC";
+    setDiscordChannelTopic(":octagonal_sign: " + server + " | Offline");
 
     try {
         const channel = getDiscordChannel(server);
 
-        if (channel != null) {
+        if (channel != null && logStatusToChat) {
             channel.send(":octagonal_sign: **Bridge for server '" + server + "' has stopped**");
-            channel.setTopic(topic); // TODO: do not ignore returned promise then()
         }
     } catch { }
+
+    process.exit(1);
 }
 
 // do something when app is closing
