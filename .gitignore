@@ -128,9 +128,9 @@ Desktop.ini
 
 # npm
 node_modules
-package-lock.json
 *.log
 *.gz
+#package-lock.json # package-lock.json is needed to build npm on github ci easily
 
 # Visual Studio
 
