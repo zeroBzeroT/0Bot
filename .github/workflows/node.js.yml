@@ -1,12 +1,12 @@
 name: node
 
-on:
+'on':
   push:
     branches:
-    - master
+      - master
   pull_request:
     branches:
-    - master
+      - master
 
 jobs:
   build:
@@ -16,11 +16,15 @@ jobs:
         node-version:
         - 12.x
     steps:
-    - uses: actions/checkout@v2
+
+    - name: checkout changes
+      uses: actions/checkout@v2
+
     - name: prepare node ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
+
     - name: prepare depdendency cache
       uses: actions/cache@v2
       with:
