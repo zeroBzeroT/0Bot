@@ -11,5 +11,5 @@ updates:
     reviewers:
       - "bierdosenhalter"
     commit-message:
-      prefix: "maven"
+      prefix: "npm"
       include: "scope"
