@@ -73,7 +73,7 @@ discordBot.on('ready', () => {
     }).then(() => console.log('Changed presence'));
 
     if (logStatusToChat) sendToDiscordChat(":white_check_mark: **Bridge for server '" + server + "' has started**", true)
-    
+
     if (!minecraftConnected) setDiscordChannelTopic(":hourglass:  " + server + " | Connecting...");
 });
 
@@ -199,6 +199,12 @@ function bindEvents(minecraftBot) {
             setDiscordChannelTopic(":hourglass:  " + server + " | Queue: " + message + "");
         } else if (username === "15m") {
             //tps = "TPS: " + message + " | ";
+        } else if (message.toLowerCase().startsWith("/register")) {
+            minecraftBot.chat("/register " + process.env.authMePassword + " " + process.env.authMePassword);
+        } else if (message.toLowerCase().startsWith("/login")) {
+            minecraftBot.chat("/login " + process.env.authMePassword);
+        } else if (message.toLowerCase().startsWith("/email")) {
+            // Ignore
         } else if (message.toLowerCase() === "~discord" || message.toLowerCase() === "!discord" || message.toLowerCase() === "?discord") {
             minecraftBot.chat("> Join " + discordLink + " for the " + server + " discord chat bridge.");
         } else if (message.toLowerCase() === "~leave" && whiteList.includes(username.toLowerCase())) {

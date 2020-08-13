@@ -22,7 +22,7 @@ function inject(bot) {
     run(bot)
 
     bot.getTps = function () {
-        return Math.round(calcTps.filter(tps => tps >= 20).length / calcTps.length * 10) / 10
+        return Math.round(calcTps.filter(tps => tps >= 20).length / calcTps.length * 20 * 10) / 10
         //return Math.round(calcTps.reduce((a, b) => a + b, 0) / calcTps.length * 10) / 10;
     }
 }
