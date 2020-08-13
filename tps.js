@@ -3,6 +3,7 @@ module.exports = init
 function init() {
     return inject
 }
+
 function inject(bot) {
     let time = parseInt(bot.time.age)
     const calcTps = []
@@ -21,7 +22,7 @@ function inject(bot) {
     run(bot)
 
     bot.getTps = function () {
-        //return Math.round(calcTps.filter(tps => tps === 20).length / 3 * 10) / 10
-        return Math.round(calcTps.reduce((a, b) => a + b, 0) / calcTps.length * 10) / 10;
+        return Math.round(calcTps.filter(tps => tps >= 20).length / calcTps.length * 10) / 10
+        //return Math.round(calcTps.reduce((a, b) => a + b, 0) / calcTps.length * 10) / 10;
     }
 }
