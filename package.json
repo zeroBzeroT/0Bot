@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "discord.js": "^12.5.1",
-    "dotenv": "^8.2.0",
+    "dotenv": "^14.1.0",
     "forever": "^3.0.4",
     "forever-monitor": "^3.0.3",
     "mineflayer": "^3.6.0",
