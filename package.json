@@ -10,8 +10,10 @@
     "dotenv": "^8.2.0",
     "forever": "^3.0.4",
     "forever-monitor": "^3.0.3",
-    "mineflayer": "^3.6.0",
-    "mineflayer-navigate": "^0.0.10"
+    "mineflayer": "^4.3.0",
+    "mineflayer-navigate": "^0.0.10",
+    "mineflayer-pathfinder": "^2.2.0",
+    "prismarine-viewer": "^1.23.0"
   },
   "scripts": {
     "debug": "node --nolazy 0Bot.js 0b0t.org"
