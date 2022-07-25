@@ -11,6 +11,10 @@ const server = process.argv[2];
 
 const fs = require('fs');
 const mineflayer = require('mineflayer');
+
+// in case we wan to update to something more robust : https://github.com/PrismarineJS/mineflayer-pathfinder
+// const { pathfinder, Movements, goals } = require('mineflayer-pathfinder');
+
 const navigatePlugin = require('mineflayer-navigate')(mineflayer);
 const tpsPlugin = require('./tps.js')(mineflayer)
 const Discord = require('discord.js');
@@ -51,6 +55,7 @@ const minecraftLoginData = {
     password: process.env.minecraftPassword,
     verbose: true,
     version: "1.12.2",
+    auth: 'microsoft',
     session
 };
 
@@ -158,6 +163,7 @@ function updateDiscordTopic() {
 function bindEvents(minecraftBot) {
     // NAVIGATION
     navigatePlugin(minecraftBot);
+    //minecraftBot.loadPlugin(pathfinder);
 
     // TPS
     minecraftBot.loadPlugin(tpsPlugin);
