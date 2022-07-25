@@ -12,10 +12,7 @@ const server = process.argv[2];
 const fs = require('fs');
 const mineflayer = require('mineflayer');
 
-// in case we wan to update to something more robust : https://github.com/PrismarineJS/mineflayer-pathfinder
-// const { pathfinder, Movements, goals } = require('mineflayer-pathfinder');
-
-const navigatePlugin = require('mineflayer-navigate')(mineflayer);
+const { pathfinder, Movements, goals } = require('mineflayer-pathfinder');
 const tpsPlugin = require('./tps.js')(mineflayer)
 const Discord = require('discord.js');
 const dotenv = require('dotenv');
@@ -162,8 +159,7 @@ function updateDiscordTopic() {
 
 function bindEvents(minecraftBot) {
     // NAVIGATION
-    navigatePlugin(minecraftBot);
-    //minecraftBot.loadPlugin(pathfinder);
+    minecraftBot.loadPlugin(pathfinder);
 
     // TPS
     minecraftBot.loadPlugin(tpsPlugin);
@@ -193,6 +189,8 @@ function bindEvents(minecraftBot) {
 
     // BOT SPAWN
     minecraftBot.on('spawn', function () {
+        const mcData = require('minecraft-data')(bot.version)
+        const defaultMove = new Movements(bot, mcData)
         minecraftConnected = true;
         updateDiscordTopic();
     });
@@ -265,7 +263,13 @@ function bindEvents(minecraftBot) {
                     minecraftBot._client.write('arm_animation', { hand: 0 });
 
                     // Movement
-                    try { if (minecraftConnected) minecraftBot.navigate.to(minecraftBot.entity.position.offset(getRandomInt(-2, 2), 0, getRandomInt(-2, 2))); }
+                    try {
+                        if (minecraftConnected) {
+                            let pos = minecraftBot.entity.position.offset(getRandomInt(-2, 2), 0, getRandomInt(-2, 2));
+                            bot.pathfinder.setMovements(defaultMove)
+                            bot.pathfinder.setGoal(new GoalNear(pos.x, pos.y, pos.z, 1))
+                        }
+                    }
                     catch (err) { console.log("Minecraft bot navigation failed!"); }
 
                     moving = 0;
