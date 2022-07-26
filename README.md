@@ -7,18 +7,26 @@ Minecraft bot based on mineflayer to promote 0b0t.org and add a bridge between t
 - !discord shows the promoted (0b0t) discord link
 - tpa accept for whitelisted users
 - basic anti afk
+- auto totem, equip and eat
+- simple broadcast
 
 ## NPM packets
 
-- mineflayer
-- mineflayer-navigate
 - discord.js
+- mineflayer
+- mineflayer-armor-manager
+- mineflayer-auto-eat
+- mineflayer-auto-totem
+- mineflayer-pathfinder
 - dotenv
 - forever (optional)
+- forever-monitor (optional)
 
 ## Usage
 
-Needs **Node.js 12+** to run.
+Needs **Node.js 14+** to run.
+
+forever start 0Bot.js [server]
 
 Create the following files in your project root folder:
 
@@ -37,14 +45,14 @@ Create the following files in your project root folder:
 ### whitelist.json
 
 	[
-	  "0bop",
-	  "1_p",
-	  "x0z0",
-	  "blockparole",
-	  "lit_furnace"
+	  "0bop"
 	]
 
-npm run forever start 0Bot.js [server]
+### promotion.txt
+
+	%promoted% - The best server
+	%promoted% has 1.12.2 dupe
+	...
 
 ## Sources
 
