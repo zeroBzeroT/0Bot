@@ -1,6 +1,11 @@
 # 0Bot
 Minecraft bot for anarchy servers based on *mineflayer* to promote 0b0t.org and add a bridge between the server running 0Bot and the 0b0t discord. Also has basic command capabilities.
 
+[![discord](https://img.shields.io/discord/895546064260718622?logo=discord)](https://discord.0b0t.org)
+[![reddit](https://img.shields.io/reddit/subreddit-subscribers/0b0t)](https://old.reddit.com/r/0b0t/)
+![last commit](https://img.shields.io/github/last-commit/zeroBzeroT/0Bot)
+![repo size](https://img.shields.io/github/languages/code-size/zeroBzeroT/0Bot.svg?label=repo%20size)
+
 ## In-game Functions
 - **!discord** shows the promoted (0b0t) discord link
 - **!tps** shows the approximated tps
