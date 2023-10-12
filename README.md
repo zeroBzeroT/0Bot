@@ -6,19 +6,30 @@ Minecraft bot based on *mineflayer* to promote 0b0t.org and add a bridge between
 - **!tps** shows the approximated tps
 - tpa accept for whitelisted users
 - basic anti afk
+- auto totem, equip and eat
+- simple broadcast
 
 ## NPM packets
+- discord.js
 - mineflayer
 - mineflayer-armor-manager
 - mineflayer-auto-eat
 - mineflayer-auto-totem
 - mineflayer-pathfinder
-- discord.js
 - dotenv
 - forever (optional)
+- forever-monitor (optional)
 
 ## Usage
 Needs **Node.js 18+** to run.
+
+```sh
+npm run debug
+```
+
+```sh
+npm run forever start 0Bot.js [server]
+```
 
 Create the following files in your project root folder:
 
@@ -38,22 +49,13 @@ Create the following files in your project root folder:
 
 ### whitelist.json (lowercase)
 	[
-	  "0bop",
-	  "1_p",
-	  "x0z0",
-	  "blockparole",
-	  "lit_furnace"
+	  "0bop"
 	]
 
-### run
-
-```sh
-npm run debug
-```
-
-```sh
-npm run forever start 0Bot.js [server]
-```
+### promotion.txt
+	%promoted% - The best server
+	%promoted% has 1.12.2 dupe
+	...
 
 ## Sources
 - rewritten TPS code from https://github.com/SiebeDW/mineflayer-tps/
