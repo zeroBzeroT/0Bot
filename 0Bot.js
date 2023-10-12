@@ -11,13 +11,15 @@ const fs = require('fs');
 const mineflayer = require('mineflayer');
 
 const armorManager = require('mineflayer-armor-manager');
-const autoEat = require('mineflayer-auto-eat');
+const autoEat = require('mineflayer-auto-eat').plugin;
 const pathFinder = require('mineflayer-pathfinder').pathfinder;
 const Movements = require('mineflayer-pathfinder').Movements;
 // ReSharper disable once InconsistentNaming
 const { GoalNear } = require('mineflayer-pathfinder').goals;
 const { autototem } = require('mineflayer-auto-totem');
 const tpsPlugin = require('./tps.js')(mineflayer);
+// ReSharper disable twice InconsistentNaming
+const { ActivityType, EmbedBuilder } = require('discord.js');
 
 const discord = require('discord.js');
 
@@ -30,7 +32,7 @@ const discordLink = process.env.discordLink;
 const changeTopicToStats = true;
 const logStatusToChat = false;
 
-const doAdvertising = false;
+const doAdvertising = true;
 const promoted = process.env.promotedServer;
 
 const intervalDiscordTopic = 60 * 5; // seconds
@@ -65,7 +67,12 @@ const minecraftLoginData = {
 let defaultMove;
 
 // DISCORD BOT
-const discordBot = new discord.Client();
+const discordBot = new discord.Client({
+  intents: [
+    discord.GatewayIntentBits.Guilds,
+    discord.GatewayIntentBits.GuildMessages
+  ]
+});
 
 let minecraftConnected = false;
 let discordConnected = false;
@@ -78,9 +85,10 @@ discordBot.on('ready', () => {
     // Channel Topic
     setInterval(updateDiscordTopic, intervalDiscordTopic * 1000);
 
-    discordBot.user.setActivity('0b0t.org', {
-        type: 'PLAYING'
-    }).then(() => console.log('Changed presence'));
+    discordBot.user.setPresence({
+      activities: [{ name: '0b0t.org', type: ActivityType.Playing }],
+      status: 'dnd',
+    });
 
     if (logStatusToChat) sendToDiscordChat(`:white_check_mark: **Bridge for server '${server}' has started**`, true);
 
@@ -200,6 +208,8 @@ function bindEvents(bot) {
 
         if (username === 'queue') {
             setDiscordChannelTopic(`:hourglass:  ${server} | Queue: ${message}`);
+        } else if (username === 'whispers') {
+            // Ignore
         } else if (username === '15m') {
             // Ignore
         } else if (message.toLowerCase().startsWith('/register')) {
@@ -217,13 +227,16 @@ function bindEvents(bot) {
         } else if (discordConnected) {
             const color = posMod(hashCode(username), 16777215);
 
-            const embed = new discord.MessageEmbed()
-                .setAuthor(username, "https://minotar.net/avatar/" + username)
+            const embed = new EmbedBuilder()
+                .setAuthor({
+                  name: username,
+                  iconURL: 'https://minotar.net/avatar/' + username
+                })
                 .setDescription(message)
                 .setColor(color)
-                .setFooter(utcDateTime());
+                .setFooter({ text: utcDateTime() });
 
-            sendToDiscordChat(embed);
+            sendToDiscordChat({ embeds: [embed] });
         }
     });
 

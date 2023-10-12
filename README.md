@@ -1,5 +1,5 @@
 # 0Bot
-Minecraft bot based on *mineflayer* to promote 0b0t.org and add a bridge between the server running 0Bot and the 0b0t discord. Also has basic command capabilities.
+Minecraft bot for anarchy servers based on *mineflayer* to promote 0b0t.org and add a bridge between the server running 0Bot and the 0b0t discord. Also has basic command capabilities.
 
 ## In-game Functions
 - **!discord** shows the promoted (0b0t) discord link
