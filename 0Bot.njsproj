@@ -17,7 +17,8 @@
     <NodeExePath>C:\Program Files\nodejs\node.exe</NodeExePath>
     <JavaScriptTestFramework>Tape</JavaScriptTestFramework>
     <NodeExeArguments>--unhandled-rejections=strict</NodeExeArguments>
-    <ScriptArguments>9b9t.com</ScriptArguments>
+    <ScriptArguments>0b0t.org</ScriptArguments>
+    <Environment>BROWSER=none</Environment>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />

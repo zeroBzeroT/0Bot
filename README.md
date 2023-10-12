@@ -1,17 +1,15 @@
 # 0Bot
+Minecraft bot based on *mineflayer* to promote 0b0t.org and add a bridge between the server running 0Bot and the 0b0t discord. Also has basic command capabilities.
 
-Minecraft bot based on mineflayer to promote 0b0t.org and add a bridge between the server running 0Bot and the 0b0t discord. Also has basic command capabilities.
-
-## Ingame Functions
-
-- !discord shows the promoted (0b0t) discord link
+## In-game Functions
+- **!discord** shows the promoted (0b0t) discord link
+- **!tps** shows the approximated tps
 - tpa accept for whitelisted users
 - basic anti afk
 - auto totem, equip and eat
 - simple broadcast
 
 ## NPM packets
-
 - discord.js
 - mineflayer
 - mineflayer-armor-manager
@@ -23,37 +21,41 @@ Minecraft bot based on mineflayer to promote 0b0t.org and add a bridge between t
 - forever-monitor (optional)
 
 ## Usage
+Needs **Node.js 18+** to run.
 
-Needs **Node.js 14+** to run.
+```sh
+npm run debug
+```
 
-forever start 0Bot.js [server]
+```sh
+npm run forever start 0Bot.js [server]
+```
 
 Create the following files in your project root folder:
 
 ### .env
-
 	minecraftUsername=un
 	minecraftPassword=pw
 	discordToken=dt
+	authMePassword=apw
+	eMail=aem
+	discordLink=https://discord.0b0t.org/
+	promotedServer=0b0t.org
 
 ### channels.json
-
 	{
 	  "0b0t.org": "687391771218411609",
 	}
 
-### whitelist.json
-
+### whitelist.json (lowercase)
 	[
 	  "0bop"
 	]
 
 ### promotion.txt
-
 	%promoted% - The best server
 	%promoted% has 1.12.2 dupe
 	...
 
 ## Sources
-
-- adapted tps code from https://github.com/SiebeDW/mineflayer-tps/
+- rewritten TPS code from https://github.com/SiebeDW/mineflayer-tps/
