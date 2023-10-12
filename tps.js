@@ -1,28 +1,29 @@
-module.exports = init
+module.exports = init;
 
 function init() {
-    return inject
+    return inject;
 }
 
 function inject(bot) {
-    let time = parseInt(bot.time.age)
-    const calcTps = []
-    function run(bot) {
-        time = parseInt(bot.time.age)
-        setTimeout(() => {
-            const diff = parseInt(bot.time.age) - time
+    let time = parseInt(bot.time.age);
+    const calcTps = [];
 
-            calcTps.push(diff)
+    function run(bot1) {
+        time = parseInt(bot1.time.age);
+        setTimeout(() => {
+            const diff = parseInt(bot1.time.age) - time;
+
+            calcTps.push(diff);
             if (calcTps.length > 60) {
-                calcTps.shift()
+                calcTps.shift();
             }
-            run(bot)
-        }, 1000)
+            run(bot1);
+        }, 1000);
     }
-    run(bot)
+
+    run(bot);
 
     bot.getTps = function () {
-        return Math.round(calcTps.filter(tps => tps >= 20).length / calcTps.length * 20 * 10) / 10
-        //return Math.round(calcTps.reduce((a, b) => a + b, 0) / calcTps.length * 10) / 10;
-    }
+        return Math.round(calcTps.filter(tps => tps >= 20).length / calcTps.length * 20 * 10) / 10.0;
+    };
 }

@@ -14,6 +14,7 @@ const armorManager = require('mineflayer-armor-manager');
 const autoEat = require('mineflayer-auto-eat');
 const pathFinder = require('mineflayer-pathfinder').pathfinder;
 const Movements = require('mineflayer-pathfinder').Movements;
+// ReSharper disable once InconsistentNaming
 const { GoalNear } = require('mineflayer-pathfinder').goals;
 const { autototem } = require('mineflayer-auto-totem');
 const tpsPlugin = require('./tps.js')(mineflayer);
@@ -25,12 +26,12 @@ dotenv.config();
 
 try { setTerminalTitle(hideEmail(process.env.minecraftUsername) + ' | ' + server) } catch (e) { }
 
-const discordLink = 'https://discord.gg/WmXCfTA';
+const discordLink = process.env.discordLink;
 const changeTopicToStats = true;
 const logStatusToChat = false;
 
 const doAdvertising = false;
-const promoted = '0b0t.org';
+const promoted = process.env.promotedServer;
 
 const intervalDiscordTopic = 60 * 5; // seconds
 const intervalMove = 5; // seconds
@@ -155,9 +156,6 @@ function bindEvents(bot) {
         fs.writeFileSync('session.json', JSON.stringify(bot._client.session));
     });
 
-    // TPA REQUEST
-    bot.chatAddPattern(/^([a-zA-Z0-9_]{3,16}) wants to teleport to you\.$/, 'tpRequest', 'tpa request');
-
     bot.on('tpRequest', function (username) {
         if (isWhitelisted(username)) {
             bot.chat(`/tpy ${username}`);
@@ -189,6 +187,9 @@ function bindEvents(bot) {
         bot.autoEat.options.startAt = 17.5;
         bot.autoEat.enable();
 
+        // TPA REQUEST
+        bot.chatAddPattern(/^([a-zA-Z0-9_]{3,16}) wants to teleport to you\.$/, 'tpRequest', 'tpa request');
+
         minecraftConnected = true;
         updateDiscordTopic();
     });
@@ -200,7 +201,7 @@ function bindEvents(bot) {
         if (username === 'queue') {
             setDiscordChannelTopic(`:hourglass:  ${server} | Queue: ${message}`);
         } else if (username === '15m') {
-            //tps = "TPS: " + message + " | ";
+            // Ignore
         } else if (message.toLowerCase().startsWith('/register')) {
             bot.chat(`/register ${process.env.authMePassword} ${process.env.authMePassword}`);
         } else if (message.toLowerCase().startsWith('/login')) {
@@ -209,6 +210,8 @@ function bindEvents(bot) {
             // Ignore
         } else if (message.toLowerCase() === '~discord' || message.toLowerCase() === '!discord' || message.toLowerCase() === '?discord') {
             bot.chat(`> Join ${discordLink} for the ${server} discord chat bridge.`);
+        } else if (message.toLowerCase() === '~tps' || message.toLowerCase() === '!tps' || message.toLowerCase() === '?tps') {
+            bot.chat(`> Current approximate tps: ${minecraftBot.getTps()}`);
         } else if (message.toLowerCase() === '~leave' && isWhitelisted(username.toLowerCase())) {
             bot.quit();
         } else if (discordConnected) {
@@ -298,6 +301,8 @@ function bindEvents(bot) {
 
                     message = message.replace('%server%', server);
                     message = message.replace('%promoted%', promoted);
+                    message = message.replace('%discord%', discordLink);
+                    message = message.replace(/[\r\n]/g, '');
 
                     bot.chat(`> ${message}`);
                     lastTimeBroadcast = bot.time.age;
@@ -346,8 +351,6 @@ function bindEvents(bot) {
         setDiscordChannelTopic(`:sos:  ${server} | Error`);
 
         if (err.code === undefined && logStatusToChat) {
-            //sendToChat(`:sos: **Bridge for server '${server}' had an error. Attempting to reconnect in 30 s...**`, true);
-
             setTimeout(relog, 5 * 60 * 1000);
             console.log('Undefined error: Maybe invalid credentials OR bot needs to wait because it relogged too quickly.');
         }
@@ -442,16 +445,16 @@ function exitHandler() {
     process.exit(1);
 }
 
-// do something when app is closing
+// do something when App is closing
 process.on('exit', exitHandler.bind(null, {}));
 
 // clicking the 'X' on Windows
 process.on('SIGHUP', exitHandler.bind(null, {}));
 
-// catches ctrl+c event
+// catches Ctrl+c event
 process.on('SIGINT', exitHandler.bind(null, {}));
 
-// catches "kill pid" (for example: nodemon restart)
+// catches "kill PID" (for example: nodemon restart)
 process.on('SIGUSR1', exitHandler.bind(null, {}));
 process.on('SIGUSR2', exitHandler.bind(null, {}));
 
@@ -486,7 +489,7 @@ function sizeOf(data) {
 }
 
 /**
- * formatted utc time
+ * formatted UTC time
  */
 function utcDateTime() {
     const m = new Date();
@@ -499,7 +502,7 @@ function utcDateTime() {
 }
 
 /**
- * java String#hashCode
+ * Java String#hashCode
  */
 function hashCode(str) {
     let hash = 0;
