@@ -15,7 +15,7 @@
     "mineflayer-auto-eat": "^3.3.6",
     "mineflayer-auto-totem": "^1.3.0",
     "mineflayer-pathfinder": "^2.4.5",
-    "npm": "^10.2.0"
+    "npm": "^10.2.3"
   },
   "scripts": {
     "debug": "node --nolazy 0Bot.js 0b0t.org"
